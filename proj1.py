@@ -7,6 +7,8 @@ from dataclasses import dataclass
 
 sys.setrecursionlimit(10**6)
 
+
+#Task 1
 @dataclass(frozen=True)
 class GlobeRect:
     lo_lat: float
@@ -27,6 +29,8 @@ class RegionCondition:
     pop: int
     ghg_rate: float
 
+
+#Task 2
 region_conditions = [RegionCondition(region = Region(rect = GlobeRect(lo_lat = 51.34,
                                                                     hi_lat = 51.68,
                                                                     west_long = -0.49,
@@ -65,3 +69,22 @@ region_conditions = [RegionCondition(region = Region(rect = GlobeRect(lo_lat = 5
                                 ghg_rate = 227)
 ]
 
+#Task 3
+#3.1
+def emissions_per_capita(rc: RegionCondition) -> float:
+    if rc.pop == 0:
+        return 0.0
+    return rc.ghg_rate/rc.pop
+
+#3.2
+def area(gr: GlobeRect) -> float:
+    n = math.radians(gr.hi_lat)
+    e =math.radians(gr.east_long)
+    s = math.radians(gr.lo_lat)
+    w = math.radians(gr.west_long)
+
+    width = e - w
+    if width <0:
+        width += 2+math.pi
+
+    return (6378.1**2) * abs(width) * math.sin(s) - math.sin(n)

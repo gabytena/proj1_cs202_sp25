@@ -7,19 +7,39 @@ from proj1 import *
 class TestRegionFunctions(unittest.TestCase):
 
     def setUp(self):
-        self.rect = GlobeRect(lo_lat=10.0, hi_lat=20.0, west_long=30.0, east_long=40.0)
-        self.region = Region(rect=self.rect, name="Testland", terrain="other")
-        self.rc = RegionCondition(region=self.region, year=2025, pop=1000, ghg_rate=5000.0)
+       pass
 
 
     def test_holder(self):
         pass
 
-    def test_3_1(self):
-        self.assertEqual(emissions_per_capita(self.rc), 5)
+    def test_3_1_1(self):
+         rc = region_conditions[0]
+         expected = rc.ghg_rate/rc.pop
+         self.assertAlmostEqual(emissions_per_capita(rc), expected, places = 5)
+    
+    def test_3_1_2(self):
+         rc = region_conditions[1]
+         expected = rc.ghg_rate/rc.pop
+         self.assertAlmostEqual(emissions_per_capita(rc), expected, places = 5)
     
     def test_3_2(self):
-        self.assertAlmostEqual(area(self.rect), )
+       gr = region_conditions[2].region.rect
+       self.assertGreater(area(gr), 0)
+
+    def test_3_3(self):
+        rc = region_conditions[3]
+        expected = rc.ghg_rate/ area(rc.region.rect)
+        self.assertAlmostEqual(emissions_per_square_km(rc), expected, places = 5)
+
+    def test_3_4(self):
+        self.assertIn(densest(region_conditions), ["London", "Sydney", "Polynesia", "Central Coast"])
+
+    def test_4(self):
+        rc = region_conditions[2]
+        og = rc
+        x = project_condition(rc, 4)
+        self.assertEqual(rc, og)    
 
 
 

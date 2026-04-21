@@ -19,8 +19,8 @@ class GlobeRect:
 @dataclass(frozen=True)
 class Region:
     rect: GlobeRect
-    name: "string"
-    terrain: "string"
+    name: str
+    terrain: str
 
 @dataclass(frozen=True)
 class RegionCondition:
@@ -85,6 +85,50 @@ def area(gr: GlobeRect) -> float:
 
     width = e - w
     if width <0:
-        width += 2+math.pi
+        width += 2*math.pi
 
-    return (6378.1**2) * abs(width) * math.sin(s) - math.sin(n)
+    return (6378.1**2) * abs((width)) * abs(math.sin(s)) - abs(math.sin(n))
+
+#3.3
+def emissions_per_square_km(rc: RegionCondition) -> float:
+    return rc.ghg_rate/area(rc.region.rect)
+
+#3.4
+def pop_density(rc: RegionCondition) -> float:
+    return rc.pop / area(rc.region.rect)
+
+def densest(rc_list: list[RegionCondition]) -> RegionCondition:
+   return densest_helper(rc_list, 1, rc_list[0].region.name, pop_density(rc_list[0]))
+
+def densest_helper(rc_list: list[RegionCondition], idx: int, name: str, density: float) -> str:
+    if idx == len(rc_list):
+        return name
+    
+    dens = pop_density(rc_list[idx])
+
+    if dens > density:
+        return densest_helper(rc_list, idx +1, rc_list[idx].region.name, density)
+    else:
+        return densest_helper(rc_list, idx + 1, name, density)
+    
+
+#Task 4
+def growth_rate(terrain: str) -> float:
+    if terrain == "ocean":
+        return 0.0001
+    elif terrain == "mountains":
+        return 0.0005
+    elif terrain == "forest":
+        return -0.00001
+    else:
+        return 0.0003
+    
+def project_condition(rc: RegionCondition, years: int) -> RegionCondition:
+    rate = growth_rate(rc.region.terrain)
+
+    pop_new = rc.pop * ((1+rate)** years)
+
+    ghg_new = rc.ghg_rate *(pop_new/rc.pop)
+
+    return RegionCondition(region = rc.region, year = rc.year + years, pop = int(pop_new), ghg_rate=ghg_new)
+
